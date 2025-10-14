@@ -1,0 +1,4 @@
+
+CompileFlags:
+  Add: [-I$HOME/cppbits, -std=c++20]
+  Remove: [-std=c23, -std=c2x]

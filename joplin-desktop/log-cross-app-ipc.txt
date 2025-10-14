@@ -1,0 +1,1 @@
+2025-05-10 12:42:13: Starting server using secret key: /Users/lola/.config/joplin-desktop/ipc_secret_key.txt
