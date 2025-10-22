@@ -14,6 +14,7 @@ vim.opt.relativenumber = true
 
 vim.pack.add({
 	{ src = "https://github.com/vague2k/vague.nvim" },
+	{ src = "https://github.com/hrsh7th/cmp-nvim-lsp-signature-help" },
 	{ src = "https://github.com/LinArcX/telescope-env.nvim" },
 	{ src = "https://github.com/chomosuke/typst-preview.nvim" },
 	{ src = "https://github.com/tadmccorkle/markdown.nvim" },
@@ -58,7 +59,9 @@ cmp.setup({
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
 		{ name = "buffer" },
+		{ name = "mason" },
 		{ name = "path" },
+		{ name = "nvim_lsp_signature_help" }
 	},
 })
 
@@ -147,7 +150,7 @@ end
 vim.keymap.set("n", "<leader>pc", pack_clean)
 
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
+capabilities.offsetEncoding = { "utf-16" }
 require("mason").setup()
 
 require("mason-lspconfig").setup({
@@ -170,22 +173,36 @@ require("mason-lspconfig").setup({
 
 require("markdown").setup({
 	on_attach = function(bufnr)
-  local map = vim.keymap.set
-  local opts = { buffer = bufnr }
-  map({ 'n', 'i' }, '<M-l><M-o>', '<Cmd>MDListItemBelow<CR>', opts)
-  map({ 'n', 'i' }, '<M-L><M-O>', '<Cmd>MDListItemAbove<CR>', opts)
-  map('n', '<C-Space>', '<Cmd>MDTaskToggle<CR>', opts)
-  map('x', '<M-c>', ':MDTaskToggle<CR>', opts)
-end,
+		local map = vim.keymap.set
+		local opts = { buffer = bufnr }
+		map({ 'n', 'i' }, '<M-l><M-o>', '<Cmd>MDListItemBelow<CR>', opts)
+		map({ 'n', 'i' }, '<M-L><M-O>', '<Cmd>MDListItemAbove<CR>', opts)
+		map('n', '<leader><CR>', '<Cmd>MDTaskToggle<CR>', opts)
+		map('x', '<M-c>', ':MDTaskToggle<CR>', opts)
+	end,
 })
 
 vim.lsp.config["tinymist"] = {
-  cmd = { "tinymist" },
-  settings = {
-    exportPdf = "onType",
-    formatterMode = "typstyle",
-  },
+	cmd = { "tinymist" },
+	settings = {
+		exportPdf = "onType",
+		formatterMode = "typstyle",
+	},
 }
+
+vim.lsp.config["clangd"] = {
+	capabilities = capabilities,
+	cmd = {
+		"clangd",
+		"--background-index",
+		"--clang-tidy",
+		"--completion-style=detailed",
+		"--header-insertion=iwyu",
+		"--offset-encoding=utf-16", -- <- key line
+	},
+	filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
+}
+
 local color_group = vim.api.nvim_create_augroup("colors", { clear = true })
 
 local ls = require("luasnip")
@@ -242,7 +259,8 @@ map({ "n" }, "<leader>Q", "<Cmd>:wqa<CR>", { desc = "Quit all buffers and write.
 map({ "n" }, "<C-f>", "<Cmd>Open .<CR>", { desc = "Open current directory in Finder." })
 map("n", "<leader>po", ":OmniPreview start<CR>", { silent = true })
 map("n", "<leader>pc", ":OmniPreview stop<CR>", { silent = true })
-
+map({ "i", "s" }, "<C-k>", vim.lsp.buf.signature_help, { desc = "Show signature help" })
+map({ "n" }, "<C-k>", vim.lsp.buf.hover, { silent = true, desc = "Docs (hover)" })
 vim.api.nvim_create_autocmd("BufWinEnter", {
 	pattern = "*.jsx,*.tsx",
 	group = vim.api.nvim_create_augroup("TS", { clear = true }),
@@ -261,24 +279,23 @@ vim.o.tabline = "%!v:lua.Tabline()"
 vim.o.winbar = " "
 vim.api.nvim_set_hl(0, "WinBar", { bg = "NONE" })
 function Tabline()
-  local t = {}
-  for i = 1, vim.fn.tabpagenr("$") do
-    local buf = vim.fn.bufname(vim.fn.tabpagebuflist(i)[vim.fn.tabpagewinnr(i)])
-    local label = vim.fn.fnamemodify(buf, ":h:t") .. "/" .. vim.fn.fnamemodify(buf, ":t")
+	local t = {}
+	for i = 1, vim.fn.tabpagenr("$") do
+		local buf = vim.fn.bufname(vim.fn.tabpagebuflist(i)[vim.fn.tabpagewinnr(i)])
+		local label = vim.fn.fnamemodify(buf, ":h:t") .. "/" .. vim.fn.fnamemodify(buf, ":t")
 
-    if i == vim.fn.tabpagenr() then
-      -- Rounded border with pill shape
-      t[#t+1] = "%#TabLineSel#" .. "╭─ " .. label .. " ─╮"
-    else
-      -- Less emphasized for inactive tabs
-      t[#t+1] = "%#TabLine#" .. "  " .. label .. "  "
-    end
-  end
-  return table.concat(t, " ") .. "%#TabLineFill#"
+		if i == vim.fn.tabpagenr() then
+			-- Rounded border with pill shape
+			t[#t + 1] = "%#TabLineSel#" .. "╭─ " .. label .. " ─╮"
+		else
+			-- Less emphasized for inactive tabs
+			t[#t + 1] = "%#TabLine#" .. "  " .. label .. "  "
+		end
+	end
+	return table.concat(t, " ") .. "%#TabLineFill#"
 end
 
 -- Transparent look
-vim.api.nvim_set_hl(0, "TabLine",     { bg = "NONE", fg = "#888888" })
+vim.api.nvim_set_hl(0, "TabLine", { bg = "NONE", fg = "#888888" })
 vim.api.nvim_set_hl(0, "TabLineFill", { bg = "NONE" })
-vim.api.nvim_set_hl(0, "TabLineSel",  { bg = "NONE", fg = "#ffffff", bold = true })
-
+vim.api.nvim_set_hl(0, "TabLineSel", { bg = "NONE", fg = "#ffffff", bold = true })

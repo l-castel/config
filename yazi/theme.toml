@@ -1,0 +1,6 @@
+[style]
+border_type = "Rounded"
+
+[flavor]
+dark  = "catppuccin-macchiato"
+right = "catppuccin-macchiato"

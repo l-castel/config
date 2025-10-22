@@ -1,0 +1,24 @@
+[[plugin.deps]]
+use = "yazi-rs/plugins:full-border"
+rev = "9a52857"
+hash = "3996fc74044bc44144b323686f887e1"
+
+[[flavor.deps]]
+use = "yazi-rs/flavors:catppuccin-mocha"
+rev = "f9ae9f2"
+hash = "5dda92e60fca4f206874ee187b3dfb67"
+
+[[flavor.deps]]
+use = "yazi-rs/flavors:catppuccin-macchiato"
+rev = "f9ae9f2"
+hash = "1f64f201ea18dcb1e48628deb99596ab"
+
+[[flavor.deps]]
+use = "dangooddd/kanagawa"
+rev = "a0b1d9d"
+hash = "abfb0b2371259b2c8adfc7b617c3d7e5"
+
+[[flavor.deps]]
+use = "muratoffalex/kanagawa-lotus"
+rev = "4275a1a"
+hash = "e3c47ba547279aff64b6e46eefcf4479"
