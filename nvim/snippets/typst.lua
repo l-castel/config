@@ -57,6 +57,15 @@ Sylvan Franklin
 			#let c = align.with(center)
 			#let r = align.with(right)
 			#let n = linebreak
+			#set page(header:
+  				box(
+  					[
+    					Fill topic
+   						#h(1fr)
+    					Fill class
+  					]
+  					)
+						)
 
 			<content>
 	]],
